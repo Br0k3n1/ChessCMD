@@ -21,3 +21,7 @@ class LittleGameBoard():
                     gameBoard = f"{gameBoard}[{i}]"
 
         return gameBoard
+
+def Display(chars):
+    s = '\n'.join(''.join(row) for row in chars)
+    print(s)

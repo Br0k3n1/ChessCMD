@@ -7,9 +7,11 @@ import graphics
 import settings
 
 options = [f"{' '*32}Play", f"{' '*30}Settings", f"{' '*29}Chess Board"]
-selections = [f"{' '*32}Play", f"{' '*30}Settings", f"{' '*29}Chess Board"]
+SettingOptions = [f"{' '*32}Sound", f"{' '*28}Controll Method", f"{' '*28}Chess Bot Method", f"{' '*32}Back"]
 selection = 0
 canPress = True
+OptionsOrderList = {hex(id(options)):[[], SettingOptions, []], hex(id(SettingOptions)):[[], [], [], options]}
+CurrentOptions = options
 
 def delayButton():
     global canPress
@@ -27,7 +29,7 @@ while True:
     print('\033[?25l', end="") # Hides Cursor
     print('\033[999A\033[99999K', end='') # Erases Screen
     chars.append(f"""
-                 
+            
     ▄████████    ▄█    █▄       ▄████████    ▄████████    ▄████████ 
     ███    ███   ███    ███     ███    ███   ███    ███   ███    ███ 
     ███    █▀    ███    ███     ███    █▀    ███    █▀    ███    █▀  
@@ -38,8 +40,9 @@ while True:
     ████████▀    ███    █▀      ██████████  ▄████████▀   ▄████████▀                                                                
     \n""".center(int(WinSizeNums[0]/2), " "))
 
-    if not options[selection].startswith("\033[92m"):
-        options[selection] = "\033[92m" + options[selection] + "\033[0m"
+    if not CurrentOptions[selection].startswith("\033[92m"):
+        beforeSelect = CurrentOptions[selection]
+        CurrentOptions[selection] = "\033[92m" + CurrentOptions[selection] + "\033[0m"
 
     t = threading.Thread(target=delayButton) # Delay between key presses while holding key down
 
@@ -47,25 +50,32 @@ while True:
     
     # Terminal Controls
     if is_pressed("down arrow") and canPress:
-        if selection + 1 <= (len(options) - 1):
+        if selection + 1 <= (len(CurrentOptions) - 1):
             t.start()
-            options[selection] = selections[selection]
+            CurrentOptions[selection] = beforeSelect
             selection += 1
         else:
             t.start()
-            options[selection] = selections[selection]
+            CurrentOptions[selection] = beforeSelect
             selection = 0
     elif is_pressed("up arrow") and canPress:
         if selection - 1 >= 0:
             t.start()
-            options[selection] = selections[selection]
+            CurrentOptions[selection] = beforeSelect
             selection -= 1
         else:
             t.start()
-            options[selection] = selections[selection]
+            CurrentOptions[selection] = beforeSelect
             selection = (len(options) - 1)
-    
-    for option in options:
+    elif is_pressed("enter") and canPress:
+        if OptionsOrderList[hex(id(CurrentOptions))][selection] != []:
+            t.start()
+            CurrentOptions[selection] = beforeSelect
+            CurrentOptions = OptionsOrderList[hex(id(CurrentOptions))][selection]
+            selection = 0
+            os.system('cls')
+
+    for option in CurrentOptions:
         chars.append(option)
         chars.append('\n')
  
